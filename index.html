@@ -213,11 +213,47 @@ footer { max-width:720px; margin:20px auto 0; padding:0 16px; color:var(--muted)
     closeForm(); render();
   });
   $('photoButton').addEventListener('click', () => $('labelPhoto').click());
+  function extractLabelFields(text) {
+    const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    const pricePattern = /(?:R\$\s*)?\d{1,4}[.,]\d{2}\b/g;
+    const candidates = [];
+    for (const line of lines) {
+      const matches = [...line.matchAll(pricePattern)];
+      for (const match of matches) {
+        const value = Number(match[0].replace(/R\$\s*/i, '').replace(',', '.'));
+        if (Number.isFinite(value) && value > 0 && value < 100000) candidates.push({value, line});
+      }
+    }
+    const bestPrice = candidates.sort((a,b) => {
+      const score = x => (/(R\$|PREÇO|OFERTA|POR|UN|KG|LITRO)/i.test(x.line) ? 2 : 0) + (x.line.length < 24 ? 1 : 0);
+      return score(b) - score(a);
+    })[0];
+    const nameLines = lines.filter(line => !pricePattern.test(line) && !/^\d{5,}$/.test(line) && !/(CÓDIGO|CODIGO|EAN|VALIDADE|OFERTA|PREÇO|PRECO|R\$)/i.test(line));
+    pricePattern.lastIndex = 0;
+    const name = nameLines.sort((a,b) => b.length - a.length)[0] || '';
+    return {name: name.replace(/[^\p{L}\p{N} .,'()\-/]/gu, '').trim(), price: bestPrice ? bestPrice.value : null};
+  }
   $('labelPhoto').addEventListener('change', async e => {
     const file=e.target.files && e.target.files[0]; if(!file)return;
     const url=URL.createObjectURL(file); $('cameraPreview').src=url; $('cameraPreview').style.display='block';
     openForm();
-    showStatus('Foto carregada. O reconhecimento automático por IA/OCR ainda não está conectado nesta versão; digite o nome e o preço conferindo a imagem.');
+    showStatus('Lendo a etiqueta automaticamente… aguarde.');
+    try {
+      if (!window.Tesseract) throw new Error('ocr-unavailable');
+      const result = await window.Tesseract.recognize(file, 'por+eng');
+      const fields = extractLabelFields(result.data.text || '');
+      if (fields.name) $('productName').value = fields.name;
+      if (fields.price !== null) $('shelfPrice').value = fields.price.toFixed(2);
+      if (fields.name && fields.price !== null) {
+        showStatus('Nome e preço preenchidos automaticamente. Confira os campos, pois a leitura pode cometer erros, e toque em “Salvar produto”.');
+      } else if (fields.name || fields.price !== null) {
+        showStatus('Preenchi o que consegui reconhecer. Confira a imagem e complete o campo que faltou antes de salvar.');
+      } else {
+        showStatus('Não consegui identificar com segurança o nome e o preço. Tente uma foto mais nítida, com boa iluminação e a etiqueta inteira visível, ou preencha manualmente.');
+      }
+    } catch (err) {
+      showStatus('Não foi possível executar a leitura automática. Verifique sua conexão com a internet e tente novamente; se não funcionar, preencha os campos manualmente.');
+    }
     $('productName').focus();
   });
   $('productList').addEventListener('click', e => {
