@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#176b4d">
+<title>ConferePreço</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --site-primary: #176B4D;
+  --site-on-primary: #FFFFFF;
+  --site-secondary: #E0F3E9;
+  --site-on-secondary: #123D2D;
+  --site-background: #F4F7F4;
+  --site-on-background: #17251E;
+  --site-font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-font-heading: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  --surface: light-dark(#FFFFFF, #202722);
+  --surface-2: light-dark(#EDF2EE, #2A342D);
+  --text: light-dark(#17251E, #F1F7F2);
+  --muted: light-dark(#68766D, #AAB7AE);
+  --line: light-dark(#DDE5DE, #3B4940);
+  --danger: #B93832;
+  --good: #197447;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--site-background); color: var(--site-on-background); font-family: var(--site-font-body); }
+#app { min-height: 100vh; width: 100%; background-color: var(--site-background); color: var(--site-on-background); border-radius: 0; padding-bottom: 32px; }
+header { background: var(--site-primary); color: var(--site-on-primary); padding: 22px 18px 28px; }
+.header-inner, main { max-width: 720px; margin: 0 auto; }
+.brand { display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:-.5px; font-size: 1.25rem; }
+.brand-mark { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; color:var(--site-primary); background:#fff; font-size:22px; }
+.eyebrow { margin:20px 0 6px; opacity:.82; font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; }
+h1 { margin:0; font-family:var(--site-font-heading); font-size:calc(1.9rem * var(--site-heading-scale)); line-height:1.1; letter-spacing:-1px; }
+header p { margin:9px 0 0; max-width:450px; opacity:.9; line-height:1.5; font-size:.94rem; }
+main { padding: 0 14px; }
+.summary { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:-16px; position:relative; }
+.metric { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:15px; box-shadow:0 4px 16px #12281a0b; }
+.metric .label { color:var(--muted); font-size:.78rem; font-weight:600; }
+.metric .value { margin-top:7px; font-size:1.42rem; font-weight:800; letter-spacing:-.6px; font-variant-numeric:tabular-nums; }
+.metric .sub { margin-top:3px; color:var(--muted); font-size:.72rem; }
+section { background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:17px; margin-top:15px; }
+.section-title { display:flex; align-items:center; gap:9px; margin:0 0 5px; font-size:1.06rem; font-weight:800; }
+.section-title .num { display:grid; place-items:center; width:29px; height:29px; background:var(--site-secondary); color:var(--site-on-secondary); border-radius:9px; font-size:.84rem; }
+.hint { margin:0 0 14px; color:var(--muted); font-size:.83rem; line-height:1.45; }
+.actions { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+button { font:inherit; cursor:pointer; border:0; border-radius:12px; padding:12px 13px; font-weight:750; transition:transform .12s, opacity .12s; }
+button:active { transform:scale(.985); }
+.primary { background:var(--site-primary); color:white; }
+.secondary { background:var(--site-secondary); color:var(--site-on-secondary); }
+.outline { background:transparent; color:var(--text); border:1px solid var(--line); }
+.small { padding:8px 10px; font-size:.78rem; }
+.product-list { display:flex; flex-direction:column; gap:9px; }
+.product { border:1px solid var(--line); border-radius:13px; padding:12px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:9px; align-items:center; }
+.product-name { font-weight:750; font-size:.91rem; overflow-wrap:anywhere; }
+.product-meta { margin-top:4px; color:var(--muted); font-size:.77rem; }
+.product-price { font-weight:800; font-variant-numeric:tabular-nums; text-align:right; }
+.product-diff { margin-top:4px; font-size:.76rem; font-weight:750; text-align:right; }
+.good { color:var(--good); } .bad { color:var(--danger); } .neutral { color:var(--muted); }
+.product-tools { grid-column:1/-1; display:flex; gap:7px; flex-wrap:wrap; padding-top:7px; border-top:1px solid var(--line); }
+.empty { text-align:center; color:var(--muted); border:1px dashed var(--line); border-radius:13px; padding:23px 12px; font-size:.86rem; line-height:1.5; }
+.empty .emoji { font-size:1.8rem; margin-bottom:5px; }
+.fields { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.field { display:flex; flex-direction:column; gap:6px; min-width:0; }
+.field.full { grid-column:1/-1; }
+label { font-size:.78rem; font-weight:700; color:var(--muted); }
+input { width:100%; min-width:0; background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:10px; padding:11px 10px; font:inherit; font-size:.92rem; }
+input:focus { outline:2px solid #39946c; outline-offset:1px; }
+.form-buttons { display:flex; gap:8px; margin-top:12px; }
+.form-buttons button { flex:1; }
+#status { display:none; padding:11px 12px; border-radius:10px; font-size:.82rem; line-height:1.4; margin-top:12px; background:var(--surface-2); color:var(--text); }
+#status.show { display:block; }
+#receiptResult { display:none; margin-top:12px; padding:12px; border-radius:12px; background:var(--surface-2); overflow-wrap:anywhere; font-size:.82rem; line-height:1.5; }
+#receiptResult.show { display:block; }
+#receiptResult a { color:var(--good); overflow-wrap:anywhere; }
+#cameraPreview { width:100%; max-height:260px; object-fit:contain; display:none; border-radius:12px; background:#111; margin-top:12px; }
+.disclaimer { font-size:.76rem; color:var(--muted); line-height:1.5; margin:13px 2px 0; }
+footer { max-width:720px; margin:20px auto 0; padding:0 16px; color:var(--muted); font-size:.73rem; text-align:center; line-height:1.5; }
+@media(min-width:600px) { header { padding:28px 24px 34px; } main { padding:0 24px; } .summary { gap:14px; } section { padding:20px; } }
+</style>
+</head>
+<body>
+<div id="app" data-sites-preview-theme="custom">
+<header><div class="header-inner">
+  <div class="brand"><div class="brand-mark">✓</div><span>ConferePreço</span></div>
+  <div class="eyebrow">Seu aliado na hora das compras</div>
+  <h1>Confira antes<br>de pagar.</h1>
+  <p>Compare a etiqueta da prateleira com o cupom fiscal e encontre diferenças nos preços.</p>
+</div></header>
+<main>
+  <div class="summary">
+    <div class="metric"><div class="label">Produtos na lista</div><div class="value" id="count">0</div><div class="sub">itens cadastrados</div></div>
+    <div class="metric"><div class="label">Diferença calculada</div><div class="value" id="difference">R$ 0,00</div><div class="sub" id="diffCaption">Aguardando comparação</div></div>
+  </div>
+
+  <section>
+    <h2 class="section-title"><span class="num">1</span> Adicione produtos</h2>
+    <p class="hint">Fotografe a etiqueta para consultar, ou adicione os dados manualmente. Confira os valores reconhecidos antes de salvar.</p>
+    <div class="actions">
+      <button class="primary" id="photoButton">▣ Ler etiqueta</button>
+      <button class="secondary" id="manualButton">＋ Adicionar produto</button>
+    </div>
+    <input id="labelPhoto" type="file" accept="image/*" capture="environment" hidden>
+    <img id="cameraPreview" alt="Foto da etiqueta selecionada">
+    <div id="productForm" hidden>
+      <div class="fields">
+        <div class="field full"><label for="productName">Nome do produto</label><input id="productName" placeholder="Ex.: Macarrão Dona Benta"></div>
+        <div class="field"><label for="shelfPrice">Preço da etiqueta (R$)</label><input id="shelfPrice" type="number" inputmode="decimal" min="0" step="0.01" placeholder="7,99"></div>
+        <div class="field"><label for="quantity">Quantidade</label><input id="quantity" type="number" inputmode="numeric" min="1" step="1" value="1"></div>
+        <div class="field full"><label for="barcode">Código de barras (opcional)</label><input id="barcode" inputmode="numeric" placeholder="Se estiver visível na etiqueta"></div>
+      </div>
+      <div class="form-buttons"><button class="primary" id="saveProduct">Salvar produto</button><button class="outline" id="cancelProduct">Cancelar</button></div>
+      <div id="status" role="status"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title"><span class="num">2</span> Sua lista</h2>
+    <p class="hint">Os produtos que você cadastrar aparecem aqui para conferir depois.</p>
+    <div id="productList" class="product-list"><div class="empty"><div class="emoji">🛒</div>Nenhum produto ainda.<br>Adicione a primeira etiqueta para começar.</div></div>
+    <div class="form-buttons"><button class="outline" id="clearList">Limpar lista</button></div>
+  </section>
+
+  <section>
+    <h2 class="section-title"><span class="num">3</span> Ler cupom fiscal</h2>
+    <p class="hint">Escaneie o QR Code da NFC-e. A consulta depende do portal fiscal do estado e da disponibilidade dos dados.</p>
+    <div class="actions">
+      <button class="primary" id="scanQr">▦ Escanear QR Code</button>
+      <button class="secondary" id="receiptPhotoButton">▤ Foto do cupom</button>
+    </div>
+    <input id="qrPhoto" type="file" accept="image/*" capture="environment" hidden>
+    <input id="receiptPhoto" type="file" accept="image/*" capture="environment" hidden>
+    <div class="fields">
+      <div class="field full"><label for="qrText">Ou cole o endereço do QR Code</label><input id="qrText" type="url" placeholder="https://... (link da consulta fiscal)"></div>
+    </div>
+    <div class="form-buttons"><button class="primary" id="checkQr">Conferir QR Code</button></div>
+    <div id="receiptResult" role="status"></div>
+    <p class="disclaimer">Este protótipo não acessa automaticamente os sistemas da SEFAZ nem confirma cobranças indevidas. A leitura de QR depende do suporte do navegador; o link será aberto para consulta, quando possível.</p>
+  </section>
+
+  <section>
+    <h2 class="section-title"><span class="num">4</span> Resultado da conferência</h2>
+    <p class="hint">A comparação abaixo usa os preços cadastrados manualmente e os preços que você informar no cupom.</p>
+    <div id="report" class="empty"><div class="emoji">🧾</div>Cadastre produtos e informe os valores cobrados para calcular as diferenças.</div>
+  </section>
+</main>
+<footer>ConferePreço · Protótipo inicial · Confira promoções, unidades e quantidades antes de concluir uma divergência.</footer>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  let products = [];
+  let nextId = 1;
+  let editingId = null;
+  let receiptData = null;
+  const money = n => Number(n || 0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+  const parsePrice = value => Math.round((Number(String(value).replace(',', '.')) || 0) * 100) / 100;
+  const safe = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function showStatus(message) { $('status').textContent = message; $('status').classList.add('show'); }
+  function openForm(product = null) {
+    $('productForm').hidden = false;
+    $('status').classList.remove('show');
+    editingId = product ? product.id : null;
+    $('productName').value = product ? product.name : '';
+    $('shelfPrice').value = product ? product.shelf : '';
+    $('quantity').value = product ? product.qty : 1;
+    $('barcode').value = product ? product.barcode || '' : '';
+    $('saveProduct').textContent = product ? 'Salvar alterações' : 'Salvar produto';
+    $('productName').focus();
+  }
+  function closeForm() { $('productForm').hidden = true; editingId = null; }
+  function render() {
+    $('count').textContent = products.reduce((s,p)=>s+p.qty,0);
+    const known = products.filter(p => p.receipt !== null);
+    const diff = known.reduce((s,p)=>s+(p.receipt-p.shelf)*p.qty,0);
+    $('difference').textContent = (diff > 0 ? '+' : diff < 0 ? '−' : '') + money(Math.abs(diff));
+    $('difference').style.color = diff > 0 ? 'var(--danger)' : diff < 0 ? 'var(--good)' : 'var(--text)';
+    $('diffCaption').textContent = known.length ? (diff > 0 ? 'Cupom acima das etiquetas' : diff < 0 ? 'Cupom abaixo das etiquetas' : 'Sem diferença nos itens comparados') : 'Aguardando comparação';
+    const list = $('productList');
+    if (!products.length) list.innerHTML = '<div class="empty"><div class="emoji">🛒</div>Nenhum produto ainda.<br>Adicione a primeira etiqueta para começar.</div>';
+    else list.innerHTML = products.map(p => {
+      const d = p.receipt === null ? null : (p.receipt-p.shelf)*p.qty;
+      const dClass = d === null ? 'neutral' : d > 0 ? 'bad' : d < 0 ? 'good' : 'neutral';
+      const dText = d === null ? 'Aguardando preço do cupom' : (d>0?'Cobrado a mais: ':d<0?'Cobrado a menos: ':'Sem diferença: ') + money(Math.abs(d));
+      return `<article class="product"><div><div class="product-name">${safe(p.name)}</div><div class="product-meta">Etiqueta: ${money(p.shelf)} · Qtd.: ${p.qty}${p.barcode ? ' · Cód. '+safe(p.barcode) : ''}</div>${p.receipt !== null ? `<div class="product-meta">Cupom: ${money(p.receipt)} por unidade</div>` : ''}</div><div><div class="product-price">${money(p.shelf*p.qty)}</div><div class="product-diff ${dClass}">${dText}</div></div><div class="product-tools"><button class="outline small" data-action="edit" data-id="${p.id}">Editar</button><button class="outline small" data-action="receipt" data-id="${p.id}">Informar preço do cupom</button><button class="outline small" data-action="remove" data-id="${p.id}">Remover</button></div></article>`;
+    }).join('');
+    const report = $('report');
+    if (!products.length) { report.className='empty'; report.innerHTML='<div class="emoji">🧾</div>Cadastre produtos e informe os valores cobrados para calcular as diferenças.'; return; }
+    const extra = known.reduce((s,p)=>s+Math.max(0,p.receipt-p.shelf)*p.qty,0);
+    const less = known.reduce((s,p)=>s+Math.max(0,p.shelf-p.receipt)*p.qty,0);
+    const waiting = products.filter(p=>p.receipt===null).length;
+    report.className='';
+    report.innerHTML = `<div style="display:grid;gap:11px"><div style="display:flex;justify-content:space-between;gap:10px"><span>Diferenças para mais</span><strong class="bad">${money(extra)}</strong></div><div style="display:flex;justify-content:space-between;gap:10px"><span>Diferenças para menos</span><strong class="good">${money(less)}</strong></div><div style="height:1px;background:var(--line)"></div><div style="display:flex;justify-content:space-between;gap:10px"><span>Saldo líquido</span><strong>${money(extra-less)}</strong></div><div class="product-meta">${known.length} produto(s) comparado(s) · ${waiting} aguardando preço do cupom.</div></div>`;
+  }
+  $('manualButton').addEventListener('click', () => openForm());
+  $('cancelProduct').addEventListener('click', closeForm);
+  $('saveProduct').addEventListener('click', () => {
+    const name = $('productName').value.trim();
+    const shelf = parsePrice($('shelfPrice').value);
+    const qty = Math.floor(Number($('quantity').value));
+    if (!name) return showStatus('Digite o nome do produto.');
+    if (!$('shelfPrice').value || shelf < 0) return showStatus('Informe um preço de etiqueta válido.');
+    if (!Number.isFinite(qty) || qty < 1) return showStatus('A quantidade precisa ser pelo menos 1.');
+    const item = {id:editingId || nextId++, name, shelf, qty, barcode:$('barcode').value.trim(), receipt:null};
+    if (editingId) { const old=products.find(p=>p.id===editingId); if(old) item.receipt=old.receipt; products=products.map(p=>p.id===editingId?item:p); }
+    else products.push(item);
+    closeForm(); render();
+  });
+  $('photoButton').addEventListener('click', () => $('labelPhoto').click());
+  $('labelPhoto').addEventListener('change', async e => {
+    const file=e.target.files && e.target.files[0]; if(!file)return;
+    const url=URL.createObjectURL(file); $('cameraPreview').src=url; $('cameraPreview').style.display='block';
+    openForm();
+    showStatus('Foto carregada. O reconhecimento automático por IA/OCR ainda não está conectado nesta versão; digite o nome e o preço conferindo a imagem.');
+    $('productName').focus();
+  });
+  $('productList').addEventListener('click', e => {
+    const b=e.target.closest('button[data-action]'); if(!b)return;
+    const id=Number(b.dataset.id), p=products.find(x=>x.id===id); if(!p)return;
+    if(b.dataset.action==='edit') openForm(p);
+    if(b.dataset.action==='remove') {products=products.filter(x=>x.id!==id);render();}
+    if(b.dataset.action==='receipt') {
+      const val=prompt(`Preço cobrado no cupom para ${p.name} (R$):`, p.receipt===null?'':p.receipt.toFixed(2).replace('.',','));
+      if(val===null)return;
+      if(!String(val).trim() || !Number.isFinite(Number(String(val).replace(',','.')))) { alert('Digite um preço válido, por exemplo 8,29.'); return; }
+      p.receipt=parsePrice(val); render();
+    }
+  });
+  $('clearList').addEventListener('click', () => { if(products.length && confirm('Deseja apagar todos os produtos desta lista?')) {products=[];render();} });
+  $('scanQr').addEventListener('click', () => $('qrPhoto').click());
+  $('qrPhoto').addEventListener('change', async e => {
+    const file=e.target.files && e.target.files[0]; if(!file)return;
+    const result=$('receiptResult'); result.classList.add('show');
+    if(!('BarcodeDetector' in window)) {result.textContent='Este navegador não oferece leitura de QR por arquivo. Você pode usar a câmera de outro app para abrir o QR e colar aqui o endereço da consulta fiscal.'; return;}
+    try {
+      const bitmap=await createImageBitmap(file);
+      const detector=new BarcodeDetector({formats:['qr_code']});
+      const codes=await detector.detect(bitmap);
+      if(!codes.length) {result.textContent='Não encontrei um QR Code legível na imagem. Tente fotografar novamente, com o código inteiro em foco.';return;}
+      $('qrText').value=codes[0].rawValue;
+      result.textContent='QR Code reconhecido. Toque em “Conferir QR Code” para abrir a consulta.';
+    } catch(err) {result.textContent='Não foi possível ler o QR nesta imagem. Tente novamente ou cole o link manualmente.';}
+  });
+  $('receiptPhotoButton').addEventListener('click', () => $('receiptPhoto').click());
+  $('receiptPhoto').addEventListener('change', e => {
+    const file=e.target.files && e.target.files[0]; if(!file)return;
+    const result=$('receiptResult'); result.classList.add('show');
+    result.textContent='Foto do cupom selecionada. Nesta versão, a extração automática dos itens do cupom ainda não está conectada; use os valores do cupom para preencher cada produto na lista.';
+  });
+  $('checkQr').addEventListener('click', () => {
+    const raw=$('qrText').value.trim(), result=$('receiptResult'); result.classList.add('show');
+    if(!raw) {result.textContent='Escaneie o QR Code ou cole o endereço da consulta fiscal primeiro.';return;}
+    let url; try {url=new URL(raw);} catch {result.textContent='Esse endereço não parece válido. Cole o link completo que aparece ao abrir o QR Code.';return;}
+    if(url.protocol!=='https:' && url.protocol!=='http:') {result.textContent='Por segurança, só é possível abrir links HTTP ou HTTPS.';return;}
+    result.innerHTML=`<strong>Link do QR Code pronto para consulta</strong><br><span>${safe(url.hostname)}</span><br><p>O protótipo não consegue extrair automaticamente os itens fiscais deste portal. Abra a consulta oficial, confira os dados e informe os preços cobrados na lista.</p><button class="primary" id="openFiscal">Abrir consulta fiscal ↗</button>`;
+    $('openFiscal').addEventListener('click', () => window.open(url.href,'_blank','noopener,noreferrer'));
+  });
+  render();
+})();
+</script>
+</body>
+</html>
